@@ -125,9 +125,10 @@ class AirCargoProblem(Problem):
         :return: list of Action objects
         """
         # The following code is a cut an paste from the 'action' function in
-        # "example_have_cake".  I read through the code and understand it, and
-        # believe does the job.  If it is not quite complete or you would like
-        # me to write this function from scratch, please let me know.
+        # "example_have_cake".  I added the comments.  I read through the code
+        # and understand it, and believe it does the job.  If it is not quite
+        # complete or you would like me to write this function from scratch,
+        # please let me know.
         possible_actions = []
 
         # decode state fluents to get clauses and add the positive ones
@@ -165,9 +166,10 @@ class AirCargoProblem(Problem):
         :return: resulting state after action
         """
         # The following code is a cut an paste from the 'result' function in
-        # "example_have_cake".  I read through the code and understand it, and
-        # believe does the job.  If it is not quite complete or you would like
-        # me to write this function from scratch, please let me know.
+        # "example_have_cake".  I added the comments.  I read through the code
+        # and understand it, and believe it does the job.  If it is not quite
+        # complete or you would like me to write this function from scratch,
+        # please let me know.
         new_state = FluentState([], [])
 
         # decode state fluents to get all clauses (positive and negative)
@@ -196,6 +198,7 @@ class AirCargoProblem(Problem):
         for fluent in action.effect_rem:
             if fluent not in new_state.neg:
                 new_state.neg.append(fluent)
+                
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
