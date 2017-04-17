@@ -1,13 +1,14 @@
 from aimacode.logic import PropKB
 from aimacode.planning import Action
 from aimacode.search import (
-    Node, Problem,
+    Node, Problem, astar_search
 )
 from aimacode.utils import expr
 from lp_utils import (
     FluentState, encode_state, decode_state,
 )
 from my_planning_graph import PlanningGraph
+import copy
 
 class AirCargoProblem(Problem):
     def __init__(self, cargos, planes, airports, initial: FluentState, goal: list):
@@ -198,7 +199,7 @@ class AirCargoProblem(Problem):
         for fluent in action.effect_rem:
             if fluent not in new_state.neg:
                 new_state.neg.append(fluent)
-                
+
         return encode_state(new_state, self.state_map)
 
     def goal_test(self, state: str) -> bool:
@@ -238,15 +239,31 @@ class AirCargoProblem(Problem):
         conditions by ignoring the preconditions required for an action to be
         executed.
         '''
-        # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
-        count = 0
+        # start with number of goal clauses
+        count = len(self.goal)
+
+        # create new kb with positive clauses in current state
+        kb = PropKB()
+        kb.tell(decode_state(node.state, self.state_map).pos_sentence())
+
+        # deduct 1 for goal clause "reached" in the current state. There is a
+        # chance that this fluent may change later on, but this is the earliest
+        # (and lowest estimate) of reaching that goal
+        for clause in self.goal:
+            if clause in kb.clauses:
+                count -= 1
+
+        # the remainder is the number of goal clauses yet to be reached.
+        # Ignoring preconditions, this also represents the minimum number of
+        # actions needed to reach full goal state
         return count
 
 def get_neg_clauses(cargos, planes, airports, pos):
     '''
-    This function returns a list of negative propositional clause specific
+    This function returns a list of negative propositional clauses specific
     to the AirCargo Problem.  It first creates a list of all clauses, then
-    removes those that are already in the positive list.
+    removes those that are already in the positive list, leaving only the
+    negative ones.
     '''
     clauses = []
     clauses.extend([expr("In({}, {})".format(c, p)) for c in cargos for p in planes])
